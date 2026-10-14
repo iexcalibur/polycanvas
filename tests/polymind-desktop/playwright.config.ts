@@ -1,7 +1,7 @@
 import assert from 'node:assert';
 
-import { testResultDir } from '@polycanvas-test/kit/playwright';
 import type { PlaywrightTestConfig } from '@playwright/test';
+import { testResultDir } from '@polycanvas-test/kit/playwright';
 // import { devices } from '@playwright/test';
 
 /**
@@ -40,7 +40,8 @@ if (process.env.DEV_SERVER_URL) {
   );
   config.webServer = [
     {
-      command: 'yarn run -T polymind bundle -p @polycanvas/electron-renderer --dev',
+      command:
+        'yarn run -T polycanvas bundle -p @polycanvas/electron-renderer --dev',
       timeout: 120 * 1000,
       reuseExistingServer: !process.env.CI,
       env: {

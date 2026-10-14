@@ -42,7 +42,7 @@ yarn polycanvas init
 
 ### Define scripts to run a .ts files without manually wiring a TypeScript loader
 
-`polymind run` will automatically inject `tsx` for your scripts
+`polycanvas run` will automatically inject `tsx` for your scripts
 
 ```json
 {
@@ -54,7 +54,7 @@ yarn polycanvas init
 ```
 
 ```bash
-polymind @polycanvas/demo dev
+polycanvas @polycanvas/demo dev
 ```
 
 or
@@ -86,7 +86,7 @@ create file `af` in the root of PolyMind project with the following content
 
 ```bash
 #!/usr/bin/env sh
-./tools/scripts/bin/runner.js polymind.ts $@
+./tools/scripts/bin/runner.js polycanvas.ts $@
 ```
 
 or on windows:

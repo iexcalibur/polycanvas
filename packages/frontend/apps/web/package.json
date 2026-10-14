@@ -5,8 +5,8 @@
   "private": true,
   "browser": "src/index.tsx",
   "scripts": {
-    "build": "polymind bundle",
-    "dev": "polymind bundle --dev"
+    "build": "polycanvas bundle",
+    "dev": "polycanvas bundle --dev"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

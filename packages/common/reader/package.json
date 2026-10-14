@@ -10,8 +10,8 @@
     "./dist": "./dist/index.js"
   },
   "scripts": {
-    "build": "polymind bundle -p @polycanvas/reader",
-    "bundle": "polymind bundle -p @polycanvas/reader"
+    "build": "polycanvas bundle -p @polycanvas/reader",
+    "bundle": "polycanvas bundle -p @polycanvas/reader"
   },
   "dependencies": {
     "lodash-es": "^4.17.23",

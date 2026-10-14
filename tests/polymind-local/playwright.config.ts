@@ -1,8 +1,8 @@
-import { testResultDir } from '@polycanvas-test/kit/playwright';
 import type {
   PlaywrightTestConfig,
   PlaywrightWorkerOptions,
 } from '@playwright/test';
+import { testResultDir } from '@polycanvas-test/kit/playwright';
 
 /**
  * Read environment variables from file.
@@ -43,7 +43,7 @@ const config: PlaywrightTestConfig = {
   reporter: process.env.CI ? 'github' : 'list',
   webServer: [
     {
-      command: 'yarn run -T polymind dev -p @polycanvas/web',
+      command: 'yarn run -T polycanvas dev -p @polycanvas/web',
       timeout: 120 * 1000,
       reuseExistingServer: !process.env.CI,
       env: {

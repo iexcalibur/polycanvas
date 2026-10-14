@@ -36,15 +36,15 @@ export class RunCommand extends PackageCommand {
     details: `
       \`polymind web <script>\`    Run any script defined in package's package.json
 
-      \`polymind init\`            Generate the required files if there are any package added or removed
+      \`polycanvas init\`            Generate the required files if there are any package added or removed
 
-      \`polymind clean\`           Clean the output files of ts, cargo, bundler outputs, etc.
+      \`polycanvas clean\`           Clean the output files of ts, cargo, bundler outputs, etc.
 
-      \`polymind bundle\`          Bundle the packages
+      \`polycanvas bundle\`          Bundle the packages
 
-      \`polymind build\`           A proxy for <-p package>'s \`build\` script
+      \`polycanvas build\`           A proxy for <-p package>'s \`build\` script
 
-      \`polymind dev\`             A proxy for <-p package>'s \`dev\` script
+      \`polycanvas dev\`             A proxy for <-p package>'s \`dev\` script
     `,
     examples: [
       [`See detail of each command`, '$0 -h'],
