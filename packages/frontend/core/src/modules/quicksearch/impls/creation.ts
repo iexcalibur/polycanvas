@@ -1,0 +1,46 @@
+import type { DocMode } from '@blockmind/polymind/model';
+import { NewXxxEdgelessIcon } from '@blocksuite/icons/rc';
+import { Entity, LiveData } from '@toeverything/infra';
+
+import type { QuickSearchSession } from '../providers/quick-search-provider';
+import type { QuickSearchGroup } from '../types/group';
+import type { QuickSearchItem } from '../types/item';
+
+const group = {
+  id: 'creation',
+  label: { i18nKey: 'com.polymind.quicksearch.group.creation' },
+  score: 0,
+} as QuickSearchGroup;
+
+export class CreationQuickSearchSession
+  extends Entity
+  implements QuickSearchSession<'creation', { title: string; mode: DocMode }>
+{
+  query$ = new LiveData('');
+
+  items$ = LiveData.computed(get => {
+    const query = get(this.query$);
+
+    if (!query.trim()) {
+      return [];
+    }
+
+    return [
+      {
+        id: 'creation:create-edgeless',
+        source: 'creation',
+        label: {
+          i18nKey: 'com.polymind.cmdk.polymind.create-new-edgeless-as',
+          options: { keyWord: query },
+        },
+        group,
+        icon: NewXxxEdgelessIcon,
+        payload: { mode: 'edgeless', title: query },
+      },
+    ] as QuickSearchItem<'creation', { title: string; mode: DocMode }>[];
+  });
+
+  query(query: string) {
+    this.query$.next(query);
+  }
+}

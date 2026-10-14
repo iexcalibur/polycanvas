@@ -1,0 +1,43 @@
+import {
+  PreconditionStrategy,
+  registerPolymindCommand,
+} from '@polycanvas/core/commands';
+import { FindInPageService } from '@polycanvas/core/modules/find-in-page/services/find-in-page';
+import { useServiceOptional } from '@toeverything/infra';
+import { useCallback, useEffect } from 'react';
+
+export function useRegisterFindInPageCommands() {
+  const findInPage = useServiceOptional(FindInPageService)?.findInPage;
+  const showFindInPage = useCallback(() => {
+    // get the selected text in page
+    const selection = window.getSelection();
+    const selectedText = selection?.toString();
+
+    findInPage?.findInPage(selectedText);
+  }, [findInPage]);
+
+  useEffect(() => {
+    if (!BUILD_CONFIG.isElectron) {
+      return;
+    }
+    const unsubs: Array<() => void> = [];
+    unsubs.push(
+      registerPolymindCommand({
+        preconditionStrategy: PreconditionStrategy.Never,
+        id: `polymind:find-in-page`,
+        keyBinding: {
+          binding: '$mod+f',
+        },
+        icon: null,
+        label: '',
+        run() {
+          showFindInPage();
+        },
+      })
+    );
+
+    return () => {
+      unsubs.forEach(unsub => unsub());
+    };
+  }, [findInPage, showFindInPage]);
+}

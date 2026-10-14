@@ -1,0 +1,50 @@
+{
+  "name": "@blockmind/polymind-block-surface",
+  "description": "Surface block for BlockMind.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "keywords": [],
+  "author": "toeverything",
+  "license": "MIT",
+  "dependencies": {
+    "@blockmind/global": "workspace:*",
+    "@blockmind/polymind-components": "workspace:*",
+    "@blockmind/polymind-ext-loader": "workspace:*",
+    "@blockmind/polymind-model": "workspace:*",
+    "@blockmind/polymind-rich-text": "workspace:*",
+    "@blockmind/polymind-shared": "workspace:*",
+    "@blockmind/std": "workspace:*",
+    "@blockmind/store": "workspace:*",
+    "@lit/context": "^1.1.2",
+    "@polycanvas/theme": "workspace:*",
+    "@preact/signals-core": "^1.8.0",
+    "@types/lodash-es": "^4.17.12",
+    "fractional-indexing": "^3.2.0",
+    "html2canvas": "^1.4.1",
+    "lit": "^3.2.0",
+    "lodash-es": "^4.17.23",
+    "nanoid": "^5.1.6",
+    "pdf-lib": "^1.17.1",
+    "rxjs": "^7.8.2",
+    "yjs": "^13.6.27",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "vitest": "^4.0.18"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./store": "./src/store.ts",
+    "./view": "./src/view.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "version": "0.26.3"
+}

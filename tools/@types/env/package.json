@@ -1,0 +1,11 @@
+{
+  "name": "@types/polymind__env",
+  "private": true,
+  "types": "./__all.d.ts",
+  "type": "module",
+  "dependencies": {
+    "@blockmind/polymind": "workspace:*",
+    "@polycanvas/env": "workspace:*"
+  },
+  "version": "0.26.3"
+}

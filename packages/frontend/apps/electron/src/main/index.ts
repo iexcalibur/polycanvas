@@ -1,0 +1,153 @@
+import path from 'node:path';
+
+import { app, protocol } from 'electron';
+
+import { createApplicationMenu } from './application-menu/create';
+import { buildType, isDev, overrideSession } from './config';
+import { persistentConfig } from './config-storage/persist';
+import { setupDeepLink } from './deep-link';
+import { registerEvents } from './events';
+import { registerHandlers } from './handlers';
+import { logger } from './logger';
+import { registerProtocol } from './protocol';
+import { setupRecordingFeature } from './recording/feature';
+import { ensureTranscriptionServer } from './recording/transcription-server';
+import { registerSecurityRestrictions } from './security-restrictions';
+import { setupTrayState } from './tray';
+// Auto-updater disabled — local standalone app
+// import { registerUpdater } from './updater';
+import { launch } from './windows-manager/launcher';
+import { launchStage } from './windows-manager/stage';
+
+app.enableSandbox();
+
+if (isDev) {
+  // In electron the dev server will be resolved to 0.0.0.0, but it
+  // might be blocked by electron.
+  // See https://github.com/webpack/webpack-dev-server/pull/384
+  app.commandLine.appendSwitch('host-resolver-rules', 'MAP 0.0.0.0 127.0.0.1');
+}
+// https://github.com/electron/electron/issues/43556
+// // `CalculateNativeWinOcclusion` - Disable native window occlusion tracker (https://groups.google.com/a/chromium.org/g/embedder-dev/c/ZF3uHHyWLKw/m/VDN2hDXMAAAJ)
+const disabledFeatures = [
+  'PlzDedicatedWorker',
+  'CalculateNativeWinOcclusion',
+  // Disable Chrome autofill and password save prompts
+  'AutofillServerCommunication',
+  'AutofillProfileCleanup',
+  'AutofillAddressProfileSavePrompt',
+  'AutofillPaymentCards',
+  'AutofillEnableAccountWalletStorage',
+  'SavePasswordBubble',
+].join(',');
+app.commandLine.appendSwitch('disable-features', disabledFeatures);
+app.commandLine.appendSwitch('disable-blink-features', 'Autofill');
+
+// Following features are enabled from the runtime:
+// `DocumentPolicyIncludeJSCallStacksInCrashReports` - https://www.electronjs.org/docs/latest/api/web-frame-main#framecollectjavascriptcallstack-experimental
+// `EarlyEstablishGpuChannel` - Refs https://issues.chromium.org/issues/40208065
+// `EstablishGpuChannelAsync` - Refs https://issues.chromium.org/issues/40208065
+const enabledFeatures = [
+  'DocumentPolicyIncludeJSCallStacksInCrashReports',
+  'EarlyEstablishGpuChannel',
+  'EstablishGpuChannelAsync',
+].join(',');
+app.commandLine.appendSwitch('enable-features', enabledFeatures);
+const enabledBlinkFeatures = ['CSSTextAutoSpace', 'WebCodecs'].join(',');
+app.commandLine.appendSwitch('enable-blink-features', enabledBlinkFeatures);
+app.commandLine.appendSwitch('force-color-profile', 'srgb');
+
+// use the same data for internal & beta for testing
+if (overrideSession) {
+  const appName = 'PolyMind';
+  const userDataPath = path.join(app.getPath('appData'), appName);
+  app.setPath('userData', userDataPath);
+  app.setPath('sessionData', userDataPath);
+}
+
+// oxlint-disable-next-line @typescript-eslint/no-var-requires
+if (require('electron-squirrel-startup')) app.quit();
+
+if (process.env.SKIP_ONBOARDING) {
+  launchStage.value = 'main';
+  persistentConfig.set({
+    onBoarding: false,
+  });
+}
+
+/**
+ * Prevent multiple instances
+ */
+const isSingleInstance = app.requestSingleInstanceLock();
+if (!isSingleInstance) {
+  logger.info(
+    'Another instance is running or responding deep link, exiting...'
+  );
+  app.quit();
+  process.exit(0);
+}
+
+/**
+ * Shut down background process if all windows were closed
+ */
+app.on('window-all-closed', () => {
+  app.quit();
+});
+
+// Force clean exit to avoid SIGSEGV crash during V8/SQLite cleanup
+// (node::sqlite::UserDefinedFunction::xDestroy null pointer dereference).
+// Both process.exit() and app.exit() still run V8's C-level atexit handlers
+// which trigger the crash. SIGKILL is the only way to terminate without any
+// native cleanup. The cleanup.ts before-quit handler runs first (registered
+// earlier via module import) so data is already persisted.
+app.on('before-quit', () => {
+  process.kill(process.pid, 'SIGKILL');
+});
+
+/**
+ * @see https://www.electronjs.org/docs/latest/api/app#event-activate-macos Event: 'activate'
+ */
+app.on('activate', () => {
+  if (app.isReady()) {
+    launch().catch(e => console.error('Failed launch:', e));
+  }
+});
+
+setupDeepLink(app);
+registerSecurityRestrictions();
+
+/**
+ * Create app window when background process will be ready
+ */
+app
+  .whenReady()
+  .then(registerProtocol)
+  .then(registerHandlers)
+  .then(registerEvents)
+  .then(launch)
+  .then(createApplicationMenu)
+  // .then(registerUpdater) — auto-updater disabled
+  .then(setupRecordingFeature)
+  .then(() => {
+    // Start transcription server in background — non-blocking.
+    // Pre-loads the small WhisperKit model so live transcription is
+    // ready instantly when the user starts a meeting.
+    ensureTranscriptionServer().catch(err => {
+      console.warn('Transcription server startup deferred:', err);
+    });
+  })
+  .then(setupTrayState)
+  .catch(e => console.error('Failed create window:', e));
+
+protocol.registerSchemesAsPrivileged([
+  {
+    scheme: 'assets',
+    privileges: {
+      secure: true,
+      corsEnabled: true,
+      supportFetchAPI: true,
+      standard: true,
+      stream: true,
+    },
+  },
+]);

@@ -1,0 +1,39 @@
+{
+  "name": "@blockmind/polymind-widget-remote-selection",
+  "description": "PolyMind remote selection widget.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "keywords": [],
+  "author": "toeverything",
+  "license": "MIT",
+  "dependencies": {
+    "@blockmind/global": "workspace:*",
+    "@blockmind/polymind-block-surface": "workspace:*",
+    "@blockmind/polymind-components": "workspace:*",
+    "@blockmind/polymind-ext-loader": "workspace:*",
+    "@blockmind/polymind-model": "workspace:*",
+    "@blockmind/polymind-shared": "workspace:*",
+    "@blockmind/std": "workspace:*",
+    "@blocksuite/icons": "^2.2.17",
+    "@polycanvas/theme": "workspace:*",
+    "@preact/signals-core": "^1.8.0",
+    "@types/lodash-es": "^4.17.12",
+    "lit": "^3.2.0",
+    "lodash-es": "^4.17.23",
+    "rxjs": "^7.8.2"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./view": "./src/view.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "version": "0.26.3"
+}

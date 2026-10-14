@@ -1,0 +1,65 @@
+import type { Configuration as RspackDevServerConfiguration } from '@rspack/dev-server';
+
+export const RSPACK_SUPPORTED_PACKAGES = [
+  '@polycanvas/web',
+  '@polycanvas/electron-renderer',
+  '@polycanvas/reader',
+] as const;
+
+const rspackSupportedPackageSet = new Set<string>(RSPACK_SUPPORTED_PACKAGES);
+
+export function isRspackSupportedPackageName(name: string) {
+  return rspackSupportedPackageSet.has(name);
+}
+
+export function assertRspackSupportedPackageName(name: string) {
+  if (isRspackSupportedPackageName(name)) {
+    return;
+  }
+
+  throw new Error(
+    `Rspack bundling currently supports: ${Array.from(RSPACK_SUPPORTED_PACKAGES).join(', ')}. Unsupported package: ${name}.`
+  );
+}
+
+export const DEFAULT_DEV_SERVER_CONFIG: RspackDevServerConfiguration = {
+  host: '0.0.0.0',
+  // PolyCanvas uses its own port so it never shares browser storage with
+  // a Polymind dev server running on :8080.
+  port: 8090,
+  allowedHosts: 'all',
+  hot: false,
+  liveReload: true,
+  compress: !process.env.CI,
+  setupExitSignals: true,
+  client: {
+    overlay: process.env.DISABLE_DEV_OVERLAY === 'true' ? false : undefined,
+    logging: process.env.CI ? 'none' : 'error',
+    // see: https://webpack.js.org/configuration/dev-server/#websocketurl
+    // must be an explicit ws/wss URL because custom protocols (e.g. assets://)
+    // cannot be used to construct WebSocket endpoints in Electron
+    webSocketURL: 'ws://0.0.0.0:8090/ws',
+  },
+  historyApiFallback: {
+    rewrites: [
+      {
+        from: /.*/,
+        to: () => {
+          return process.env.SELF_HOSTED === 'true'
+            ? '/selfhost.html'
+            : '/index.html';
+        },
+      },
+    ],
+  },
+  proxy: process.env.NO_BACKEND
+    ? []
+    : [
+        {
+          context: ['/api', '/graphql', '/socket.io'],
+          target: 'http://localhost:3010',
+          changeOrigin: true,
+          ws: true,
+        },
+      ],
+};

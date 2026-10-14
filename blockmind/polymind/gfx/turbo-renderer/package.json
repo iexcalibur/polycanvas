@@ -1,0 +1,29 @@
+{
+  "name": "@blockmind/polymind-gfx-turbo-renderer",
+  "description": "Turbo renderer for viewport in BlockMind.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "keywords": [],
+  "author": "toeverything",
+  "license": "MIT",
+  "dependencies": {
+    "@blockmind/global": "workspace:*",
+    "@blockmind/std": "workspace:*",
+    "@blockmind/store": "workspace:*",
+    "rxjs": "^7.8.2"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./painter": "./src/painter/painter.worker.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "version": "0.26.3"
+}

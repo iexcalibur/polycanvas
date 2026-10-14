@@ -1,0 +1,44 @@
+{
+  "name": "@blockmind/polymind-block-attachment",
+  "description": "Attachment block for BlockMind.",
+  "type": "module",
+  "scripts": {
+    "build": "tsc"
+  },
+  "sideEffects": false,
+  "keywords": [],
+  "author": "toeverything",
+  "license": "MIT",
+  "dependencies": {
+    "@blockmind/global": "workspace:*",
+    "@blockmind/polymind-block-surface": "workspace:*",
+    "@blockmind/polymind-components": "workspace:*",
+    "@blockmind/polymind-ext-loader": "workspace:*",
+    "@blockmind/polymind-model": "workspace:*",
+    "@blockmind/polymind-shared": "workspace:*",
+    "@blockmind/polymind-widget-slash-menu": "workspace:*",
+    "@blockmind/std": "workspace:*",
+    "@blockmind/store": "workspace:*",
+    "@blocksuite/icons": "^2.2.17",
+    "@floating-ui/dom": "^1.6.13",
+    "@lit/context": "^1.1.2",
+    "@polycanvas/theme": "workspace:*",
+    "@preact/signals-core": "^1.8.0",
+    "file-type": "^21.0.0",
+    "lit": "^3.2.0",
+    "rxjs": "^7.8.2",
+    "zod": "^3.25.76"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./store": "./src/store.ts",
+    "./view": "./src/view.ts"
+  },
+  "files": [
+    "src",
+    "dist",
+    "!src/__tests__",
+    "!dist/__tests__"
+  ],
+  "version": "0.26.3"
+}

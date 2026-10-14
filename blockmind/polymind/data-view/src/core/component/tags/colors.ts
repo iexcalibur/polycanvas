@@ -1,0 +1,88 @@
+import { cssVarV2 } from '@polycanvas/theme/v2';
+
+export type SelectOptionColor = {
+  oldColor: string;
+  color: string;
+  name: string;
+};
+export const selectOptionColors: SelectOptionColor[] = [
+  {
+    oldColor: 'var(--polymind-tag-red)',
+    color: cssVarV2('chip/label/red'),
+    name: 'Red',
+  },
+  {
+    oldColor: 'var(--polymind-tag-pink)',
+    color: cssVarV2('chip/label/magenta'),
+    name: 'Magenta',
+  },
+  {
+    oldColor: 'var(--polymind-tag-orange)',
+    color: cssVarV2('chip/label/orange'),
+    name: 'Orange',
+  },
+  {
+    oldColor: 'var(--polymind-tag-yellow)',
+    color: cssVarV2('chip/label/yellow'),
+    name: 'Yellow',
+  },
+  {
+    oldColor: 'var(--polymind-tag-green)',
+    color: cssVarV2('chip/label/green'),
+    name: 'Green',
+  },
+  {
+    oldColor: 'var(--polymind-tag-teal)',
+    color: cssVarV2('chip/label/teal'),
+    name: 'Teal',
+  },
+  {
+    oldColor: 'var(--polymind-tag-blue)',
+    color: cssVarV2('chip/label/blue'),
+    name: 'Blue',
+  },
+  {
+    oldColor: 'var(--polymind-tag-purple)',
+    color: cssVarV2('chip/label/purple'),
+    name: 'Purple',
+  },
+  {
+    oldColor: 'var(--polymind-tag-gray)',
+    color: cssVarV2('chip/label/grey'),
+    name: 'Grey',
+  },
+  {
+    oldColor: 'var(--polymind-tag-white)',
+    color: cssVarV2('chip/label/white'),
+    name: 'White',
+  },
+];
+
+const oldColorMap = Object.fromEntries(
+  selectOptionColors.map(tag => [tag.oldColor, tag.color])
+);
+
+export const getColorByColor = (color: string) => {
+  if (color.startsWith('--polymind-tag')) {
+    return oldColorMap[color] ?? color;
+  }
+  return color;
+};
+
+/** select tag color poll */
+const selectTagColorPoll = selectOptionColors.map(color => color.color);
+
+function tagColorHelper() {
+  let colors = [...selectTagColorPoll];
+  return (): string => {
+    if (colors.length === 0) {
+      colors = [...selectTagColorPoll];
+    }
+    const index = Math.floor(Math.random() * colors.length);
+    const color = colors.splice(index, 1)[0];
+    if (!color) return '';
+    return color;
+  };
+}
+
+export const getTagColor = tagColorHelper();

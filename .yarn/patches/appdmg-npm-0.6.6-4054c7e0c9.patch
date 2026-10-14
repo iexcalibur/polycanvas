@@ -1,0 +1,13 @@
+diff --git a/lib/util.js b/lib/util.js
+index 300106bf412bd5180a476a9855f1dfff6c8d2f8d..e5a94658ae8b9fdfd003b46095f06f0ad3b54ba6 100644
+--- a/lib/util.js
++++ b/lib/util.js
+@@ -34,7 +34,7 @@ exports.tiffutil = function (a, b, out, cb) {
+ exports.seticonflag = function (path, cb) {
+   const buf = Buffer.alloc(32)
+   buf.writeUInt8(4, 8)
+-  util.callbackify(() => xattr.set(path, 'com.apple.FinderInfo', buf))(cb)
++  util.callbackify(() => Promise.resolve(xattr.setAttributeSync(path, 'com.apple.FinderInfo', buf)))(cb)
+ }
+ 
+ exports.codesign = function (identity, identifier, path, cb) {

@@ -1,0 +1,27 @@
+{
+  "name": "@polycanvas-test/kit",
+  "private": true,
+  "type": "module",
+  "version": "0.26.3",
+  "exports": {
+    "./electron": "./src/electron.ts",
+    "./mobile": "./src/mobile.ts",
+    "./playwright": "./src/playwright.ts",
+    "./utils/*": "./src/utils/*.ts",
+    "./bs/*": "./src/bs/*.ts"
+  },
+  "devDependencies": {
+    "@blockmind/polymind": "workspace:*",
+    "@node-rs/argon2": "^2.0.2",
+    "@playwright/test": "=1.58.2",
+    "@polycanvas-tools/utils": "workspace:*",
+    "@toeverything/infra": "workspace:*",
+    "express": "^5.0.0",
+    "http-proxy-middleware": "^3.0.3"
+  },
+  "peerDependencies": {
+    "@playwright/test": "*",
+    "express": "*",
+    "http-proxy-middleware": "*"
+  }
+}

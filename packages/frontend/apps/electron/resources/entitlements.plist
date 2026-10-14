@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Hardened-runtime entitlements for the PolyMind macOS app.
+
+  Applied to:
+    - PolyMind.app (main bundle + Electron helpers)
+    - polymind.darwin-arm64.node (napi-rs Rust binding)
+    - transcription-server (Swift binary in Contents/Resources/)
+    - Squirrel.framework, Mantle.framework, ReactiveObjC.framework, etc.
+
+  Each entitlement is the minimum needed for some specific code path
+  to run under hardened runtime. We deliberately keep this file
+  permissive: PolyMind ships outside the Mac App Store, so the strict
+  sandbox entitlements don't apply, and we'd rather grant a slightly-
+  too-broad permission than have a feature silently break in
+  production due to a missing entitlement.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <!--
+    V8 (Electron's JS engine) JIT-compiles JavaScript at runtime.
+    Without this, V8 can't allocate executable memory and the
+    renderer process aborts on first script execution.
+  -->
+  <key>com.apple.security.cs.allow-jit</key>
+  <true/>
+
+  <!--
+    Some V8 code paths execute from memory pages that aren't signed
+    by us (the JIT'd code is generated at runtime). Required in
+    addition to allow-jit for newer V8 versions.
+  -->
+  <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+  <true/>
+
+  <!--
+    Disable library validation so we can dlopen:
+      - polymind.darwin-arm64.node (Rust napi binding, signed by us
+        but cross-validation between the Electron framework and our
+        binding fails strict mode without this)
+      - CoreML model packages loaded by the Swift transcription
+        server (Apple-signed, but loaded outside the standard
+        framework path)
+      - FluidAudio + DTLNAecCoreML Swift packages (vendored, signed
+        by us as part of the transcription-server binary itself)
+  -->
+  <key>com.apple.security.cs.disable-library-validation</key>
+  <true/>
+
+  <!--
+    Mic capture for AVAudioEngine (live transcription) and the Swift
+    transcription server's CohereAsrService input.
+  -->
+  <key>com.apple.security.device.audio-input</key>
+  <true/>
+
+  <!--
+    Network egress: HuggingFace download for Cohere model files,
+    Gemini API for summarisation, localhost connection from the
+    Electron main process to the Swift transcription server.
+  -->
+  <key>com.apple.security.network.client</key>
+  <true/>
+
+  <!--
+    Localhost server: the Swift transcription server binds to
+    127.0.0.1:9111 and accepts connections from the Electron main.
+  -->
+  <key>com.apple.security.network.server</key>
+  <true/>
+
+  <!--
+    Allow the Electron main process to set DYLD env vars when
+    spawning the transcription server child process. Required for
+    the POLYMIND_COHERE_LOCAL_DIR override path during dev /
+    pre-Phase-8c testing; harmless in production.
+  -->
+  <key>com.apple.security.cs.allow-dyld-environment-variables</key>
+  <true/>
+</dict>
+</plist>

@@ -1,0 +1,60 @@
+import { WorkspaceDialogService } from '@polycanvas/core/modules/dialogs';
+import type { SettingTab } from '@polycanvas/core/modules/dialogs/constant';
+import { DocsService } from '@polycanvas/core/modules/doc';
+import { LifecycleService } from '@polycanvas/core/modules/lifecycle';
+import { WorkbenchService } from '@polycanvas/core/modules/workbench';
+import { apis, events } from '@polycanvas/electron-api';
+import type { FrameworkProvider } from '@toeverything/infra';
+
+import { setupRecordingEvents } from './recording';
+import { getCurrentWorkspace } from './utils';
+
+export function setupEvents(frameworkProvider: FrameworkProvider) {
+  // setup application lifecycle events, and emit application start event
+  window.addEventListener('focus', () => {
+    frameworkProvider.get(LifecycleService).applicationFocus();
+  });
+  frameworkProvider.get(LifecycleService).applicationStart();
+
+  events?.applicationMenu.openInSettingModal(({ activeTab, scrollAnchor }) => {
+    using currentWorkspace = getCurrentWorkspace(frameworkProvider);
+    if (!currentWorkspace) {
+      return;
+    }
+    const { workspace } = currentWorkspace;
+    const workspaceDialogService = workspace.scope.get(WorkspaceDialogService);
+    // close all other dialogs first
+    workspaceDialogService.closeAll();
+    workspaceDialogService.open('setting', {
+      activeTab: activeTab as unknown as SettingTab,
+      scrollAnchor,
+    });
+  });
+
+  events?.applicationMenu.onNewPageAction(type => {
+    apis?.ui
+      .isActiveTab()
+      .then(isActive => {
+        if (!isActive) {
+          return;
+        }
+        using currentWorkspace = getCurrentWorkspace(frameworkProvider);
+        if (!currentWorkspace) {
+          return;
+        }
+        const { workspace } = currentWorkspace;
+        const docsService = workspace.scope.get(DocsService);
+
+        const page =
+          type === 'default'
+            ? docsService.createDoc()
+            : docsService.createDoc({ primaryMode: type });
+        workspace.scope.get(WorkbenchService).workbench.openDoc(page.id);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  });
+
+  setupRecordingEvents(frameworkProvider);
+}

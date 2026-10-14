@@ -1,0 +1,29 @@
+{
+  "name": "@polycanvas/web",
+  "version": "0.26.3",
+  "description": "PolyMind Desktop Web application",
+  "private": true,
+  "browser": "src/index.tsx",
+  "scripts": {
+    "build": "polymind bundle",
+    "dev": "polymind bundle --dev"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@polycanvas/component": "workspace:*",
+    "@polycanvas/core": "workspace:*",
+    "@polycanvas/env": "workspace:*",
+    "@polycanvas/i18n": "workspace:*",
+    "@polycanvas/nbstore": "workspace:*",
+    "@toeverything/infra": "workspace:*",
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-router-dom": "^6.30.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.1",
+    "@types/react-dom": "^19.0.2",
+    "cross-env": "^10.1.0",
+    "typescript": "^5.9.3"
+  }
+}

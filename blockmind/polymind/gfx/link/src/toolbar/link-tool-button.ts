@@ -1,0 +1,91 @@
+import { insertLinkByQuickSearchCommand } from '@blockmind/polymind-block-bookmark';
+import { insertEmbedCard } from '@blockmind/polymind-block-embed';
+import { DefaultTool } from '@blockmind/polymind-block-surface';
+import { toggleEmbedCardCreateModal } from '@blockmind/polymind-components/embed-card-modal';
+import { LinkIcon } from '@blockmind/polymind-components/icons';
+import { QuickToolMixin } from '@blockmind/polymind-widget-edgeless-toolbar';
+import { GfxControllerIdentifier } from '@blockmind/std/gfx';
+import { css, html, LitElement } from 'lit';
+
+export class EdgelessLinkToolButton extends QuickToolMixin(LitElement) {
+  static override styles = css`
+    .link-icon,
+    .link-icon > svg {
+      width: 24px;
+      height: 24px;
+    }
+  `;
+
+  override type = DefaultTool;
+
+  private _onClick() {
+    const [success, { insertedLinkType }] = this.edgeless.std.command.exec(
+      insertLinkByQuickSearchCommand
+    );
+
+    if (!success) {
+      // fallback to create a bookmark block with input modal
+      toggleEmbedCardCreateModal(
+        this.edgeless.host,
+        'Links',
+        'The added link will be displayed as a card view.',
+        {
+          mode: 'edgeless',
+          onSave: url => {
+            insertEmbedCard(this.edgeless.std, {
+              flavour: 'polymind:bookmark',
+              targetStyle: 'vertical',
+              props: { url },
+            });
+          },
+        },
+        ({ mode }) => {
+          if (mode === 'edgeless') {
+            const gfx = this.edgeless.std.get(GfxControllerIdentifier);
+            gfx.tool.setTool(DefaultTool);
+          }
+        }
+      ).catch(console.error);
+      return;
+    }
+
+    insertedLinkType
+      ?.then(type => {
+        const flavour = type?.flavour;
+        if (!flavour) return;
+
+        this.edgeless.std?.track('CanvasElementAdded', {
+          control: 'toolbar:general',
+          page: 'whiteboard editor',
+          module: 'toolbar',
+          segment: 'toolbar',
+          type: flavour.split(':')[1],
+        });
+
+        this.edgeless.std?.track('LinkedDocCreated', {
+          control: 'links',
+          page: 'whiteboard editor',
+          module: 'edgeless toolbar',
+          segment: 'whiteboard',
+          type: flavour.split(':')[1],
+          other: 'existing doc',
+        });
+      })
+      .catch(console.error);
+  }
+
+  override render() {
+    return html`<edgeless-tool-icon-button
+      .iconContainerPadding="${6}"
+      .tooltip="${html`<polymind-tooltip-content-with-shortcut
+        data-tip="${'Link'}"
+        data-shortcut="${'@'}"
+      ></polymind-tooltip-content-with-shortcut>`}"
+      .tooltipOffset=${17}
+      class="edgeless-link-tool-button"
+      @click=${this._onClick}
+    >
+      <span class="link-icon">${LinkIcon}</span>
+    </edgeless-tool-icon-button>`;
+  }
+}
